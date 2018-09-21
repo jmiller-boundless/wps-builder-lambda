@@ -1,0 +1,32 @@
+service: my-express-application
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: dev
+  region: us-east-1
+  vpc:
+    securityGroupIds:
+      - sg-0bd711d56e6a4b44a
+    subnetIds:
+      - subnet-0883286fcc88e0140
+      - subnet-0c0d8bf491219e104
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "ec2:CreateNetworkInterface"
+      Resource: "*" 
+  environment:
+    DATABASE_CONNECTION_HOST: ${file(./hidden.yml):dev.DATABASE_CONNECTION_HOST}
+    DATABASE_CONNECTION_PORT: ${file(./hidden.yml):dev.DATABASE_CONNECTION_PORT}
+    DATABASE_CONNECTION_USERNAME: ${file(./hidden.yml):dev.DATABASE_CONNECTION_USERNAME}
+    DATABASE_CONNECTION_PASSWORD: ${file(./hidden.yml):dev.DATABASE_CONNECTION_PASSWORD}
+
+functions:
+  app:
+    handler: index.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+plugins:
+  - serverless-offline
