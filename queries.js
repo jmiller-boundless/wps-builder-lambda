@@ -47,7 +47,47 @@ function getAllModels(req, res, next) {
       });
   }
 
+  function insertModel(req,res,next){
+    db.tx(t => {
+      const q2 = t.one('INSERT INTO models(data) VALUES($1) RETURNING id,data', [req.body]);
+    })
+    .then(data => {
+      //success
+      res.status(200)
+          .json({
+            status: 'success',
+            data: data,
+            message: 'Inserted a model'
+          });
+    })
+    .catch(error => {
+      //failure, Rollback
+      return next(error);
+    });
+  }
+
+  function updateModel(req,res,next){
+    db.tx(t => {
+      const q2 = t.one('UPDATE models SET DATA = $2 WHERE id = $1 RETURNING id,data', [req.params.id,req.body]);
+    })
+    .then(data => {
+      //success
+      res.status(200)
+          .json({
+            status: 'success',
+            data: data,
+            message: 'Updated a model'
+          });
+    })
+    .catch(error => {
+      //failure, Rollback
+      return next(error);
+    });
+  }
+
 module.exports = {
   getAllModels: getAllModels,
-  getModelsByProcess: getModelsByProcess
+  getModelsByProcess: getModelsByProcess,
+  insertModel: insertModel,
+  updateModel: updateModel
 };
