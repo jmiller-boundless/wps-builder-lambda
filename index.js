@@ -4,5 +4,6 @@ const app = express()
 var db = require('./queries');
 
 app.get('/', db.getAllModels);
+app.get('/byProcess/:process',db.getModelsByProcess)
 
 module.exports.handler = serverless(app);

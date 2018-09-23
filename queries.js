@@ -23,7 +23,23 @@ function getAllModels(req, res, next) {
           .json({
             status: 'success',
             data: data,
-            message: 'Retrieved ALL Models'
+            message: 'Retrieved All Models'
+          });
+      })
+      .catch(function (err) {
+        return next(err);
+      });
+  }
+
+  function getModelsByProcess(req, res, next) {
+    db.any("select data from models where lower(data::text)::jsonb->>'descriptions' like $1",['%'+req.params.process+'%'])
+      .then(function (data) {
+          //console.info(data);
+        res.status(200)
+          .json({
+            status: 'success',
+            data: data,
+            message: 'Retrieved All Models'
           });
       })
       .catch(function (err) {
@@ -32,5 +48,6 @@ function getAllModels(req, res, next) {
   }
 
 module.exports = {
-  getAllModels: getAllModels
+  getAllModels: getAllModels,
+  getModelsByProcess: getModelsByProcess
 };
