@@ -32,7 +32,7 @@ function getAllModels(req, res, next) {
   }
 
   function getModelsByProcess(req, res, next) {
-    db.any("select data from models where lower(data::text)::jsonb->>'descriptions' like $1",['%'+req.params.process+'%'])
+    db.any("select data from models where lower(data::text)::jsonb->>'descriptions' like lower($1)",['%'+req.params.process+'%'])
       .then(function (data) {
           //console.info(data);
         res.status(200)
