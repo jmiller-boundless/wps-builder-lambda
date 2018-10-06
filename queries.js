@@ -49,7 +49,7 @@ function getAllModels(req, res, next) {
 
   function insertModel(req,res,next){
     db.tx(t => {
-      const q2 = t.one('INSERT INTO models(data) VALUES($1) RETURNING model_id,data', [req.body]);
+      const q2 = t.one('INSERT INTO models(data) VALUES($1) RETURNING model_id', [req.body]);
       return t.batch([q2]);
     })
     .then(data => {
@@ -70,7 +70,7 @@ function getAllModels(req, res, next) {
 
   function updateModel(req,res,next){
     db.tx(t => {
-      const q2 = t.one('UPDATE models SET DATA = $2 WHERE model_id = $1 RETURNING model_id,data', [req.params.id,req.body]);
+      const q2 = t.one('UPDATE models SET DATA = $2 WHERE model_id = $1 RETURNING model_id', [req.params.id,req.body]);
       return t.batch([q2]);
     })
     .then(data => {
@@ -78,7 +78,6 @@ function getAllModels(req, res, next) {
       res.status(200)
           .json({
             status: 'success',
-            data: data,
             message: 'Updated a model'
           });
     })
