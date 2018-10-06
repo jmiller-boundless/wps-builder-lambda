@@ -13,7 +13,8 @@ const jwtMiddleware = (req, res, next) => {
     } catch (err) {
       console.log('Error: unable to decode jwt.');
       console.log(err);
-      res.status(500).send('Could\'t decode jwt.');
+      //res.status(500).send('Could\'t decode jwt.');
+      return next(new Error('Could not decode jwt.'));
     }
   }
   
@@ -33,18 +34,6 @@ app.use(function(req, res, next) {
 });
 
 // error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status( err.code || 500 )
-    .json({
-      status: 'error',
-      message: err
-    });
-  });
-}
 
 // production error handler
 // no stacktraces leaked to user
