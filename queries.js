@@ -16,7 +16,7 @@ const cn = {
 var db = pgp(cn);
 
 function getAllModels(req, res, next) {
-    db.any('select data from models')
+    db.any('select model_id, data from models')
       .then(function (data) {
           //console.info(data);
         res.status(200)
