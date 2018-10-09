@@ -25,6 +25,7 @@ app.get('/', db.getAllModels);
 app.get('/byProcess/:process',db.getModelsByProcess);
 app.post('/',db.insertModel);
 app.put('/:id',db.updateModel);
+app.delete('/:id',db.deleteModel);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

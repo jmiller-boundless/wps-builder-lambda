@@ -87,9 +87,29 @@ function getAllModels(req, res, next) {
     });
   }
 
+  function deleteModel(req,res,next){
+    db.tx(t => {
+      const q2 = t.one('DELETE from models WHERE model_id = $1 RETURNING model_id', [req.params.id]);
+      return t.batch([q2]);
+    })
+    .then(data => {
+      //success
+      res.status(200)
+          .json({
+            status: 'success',
+            message: 'Deleted a model'
+          });
+    })
+    .catch(error => {
+      //failure, Rollback
+      return next(error);
+    });
+  }
+
 module.exports = {
   getAllModels: getAllModels,
   getModelsByProcess: getModelsByProcess,
   insertModel: insertModel,
-  updateModel: updateModel
+  updateModel: updateModel,
+  deleteModel: deleteModel
 };
