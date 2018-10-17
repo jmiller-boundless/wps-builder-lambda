@@ -23,6 +23,7 @@ const jwtMiddleware = (req, res, next) => {
 
 app.get('/', db.getAllModels);
 app.get('/byProcess/:process',db.getModelsByProcess);
+app.get('/byKeyword/:keyword',db.getModelsByMetadata);
 app.post('/',db.insertModel);
 app.put('/:id',db.updateModel);
 app.delete('/:id',db.deleteModel);

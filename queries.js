@@ -2,7 +2,10 @@ var promise = require('bluebird');
 
 var options = {
   // Initialization Options
-  promiseLib: promise
+  promiseLib: promise,
+  query(e) {
+    console.log(e.query);
+  }
 };
 
 var pgp = require('pg-promise')(options);
@@ -16,7 +19,7 @@ const cn = {
 var db = pgp(cn);
 
 function getAllModels(req, res, next) {
-    db.any('select model_id, data from models')
+    db.any("select model_id, data from models ORDER BY to_timestamp(data->'metadata'->>'updated','YYYY-MM-DDTHH:MI:SS.MS') DESC OFFSET $1 LIMIT $2 ",[parseInt(req.query.offset,10),parseInt(req.query.limit,10)])
       .then(function (data) {
           //console.info(data);
         res.status(200)
@@ -33,6 +36,22 @@ function getAllModels(req, res, next) {
 
   function getModelsByProcess(req, res, next) {
     db.any("select model_id, data from models where lower(data::text)::jsonb->>'descriptions' like lower($1)",['%'+req.params.process+'%'])
+      .then(function (data) {
+          //console.info(data);
+        res.status(200)
+          .json({
+            status: 'success',
+            data: data,
+            message: 'Retrieved All Models'
+          });
+      })
+      .catch(function (err) {
+        return next(err);
+      });
+  }
+
+  function getModelsByMetadata(req, res, next) {
+    db.any("select model_id, data from models where lower(data::text)::jsonb->'metadata'->>'title' like lower($1) or lower(data::text)::jsonb->'metadata'->>'abstract' like lower($1) or lower(data::text)::jsonb->'metadata'->>'keywords' like lower($1) ORDER BY to_timestamp(data->'metadata'->>'updated','YYYY-MM-DDTHH:MI:SS.MS') DESC OFFSET $2 LIMIT $3",['%'+req.params.keyword+'%',parseInt(req.query.offset,10),parseInt(req.query.limit,10)])
       .then(function (data) {
           //console.info(data);
         res.status(200)
@@ -109,6 +128,7 @@ function getAllModels(req, res, next) {
 module.exports = {
   getAllModels: getAllModels,
   getModelsByProcess: getModelsByProcess,
+  getModelsByMetadata: getModelsByMetadata,
   insertModel: insertModel,
   updateModel: updateModel,
   deleteModel: deleteModel
