@@ -19,6 +19,7 @@ const cn = {
 var db = pgp(cn);
 var offset=0;
 var limit=9999999999;
+var keyword="";
 function getAllModels(req, res, next) {
   offset = typeof req.query.offset  !== 'undefined' ?  req.query.offset  : offset;
   limit = typeof req.query.limit  !== 'undefined' ?  req.query.limit  : limit;
@@ -57,11 +58,12 @@ function getAllModels(req, res, next) {
   function getModelsByMetadata(req, res, next) {
     offset = typeof req.query.offset  !== 'undefined' ?  req.query.offset  : offset;
     limit = typeof req.query.limit  !== 'undefined' ?  req.query.limit  : limit;
+    keyword = req.params.keyword !='*' ? req.params.keyword : keyword;
     db.any("select model_id, data from models where lower(data::text)::jsonb->'metadata'->>'title' like lower($1) "+
     "or lower(data::text)::jsonb->'metadata'->>'abstract' like lower($1) "+ 
     "or lower(data::text)::jsonb->'metadata'->>'keywords' like lower($1)"+ 
     "ORDER BY to_timestamp(data->'metadata'->>'updated','YYYY-MM-DDTHH:MI:SS.MS') DESC OFFSET $2 LIMIT $3",
-    ['%'+req.params.keyword+'%',parseInt(offset,10),parseInt(limit,10)])
+    ['%'+keyword+'%',parseInt(offset,10),parseInt(limit,10)])
       .then(function (data) {
           //console.info(data);
         res.status(200)
