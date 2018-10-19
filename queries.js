@@ -17,12 +17,10 @@ const cn = {
     password: process.env.DATABASE_CONNECTION_PASSWORD
 };
 var db = pgp(cn);
-var offset=0;
-var limit=9999999999;
-var keyword="";
+
 function getAllModels(req, res, next) {
-  offset = typeof req.query.offset  !== 'undefined' ?  req.query.offset  : offset;
-  limit = typeof req.query.limit  !== 'undefined' ?  req.query.limit  : limit;
+  var offset = typeof req.query.offset  !== 'undefined' ?  req.query.offset  : 0;
+  var limit = typeof req.query.limit  !== 'undefined' ?  req.query.limit  : 99999999999999;
     db.any("select model_id, data from models ORDER BY to_timestamp(data->'metadata'->>'updated','YYYY-MM-DDTHH:MI:SS.MS') DESC OFFSET $1 LIMIT $2 ",
     [parseInt(offset,10),parseInt(limit,10)])
       .then(function (data) {
@@ -57,9 +55,9 @@ function getAllModels(req, res, next) {
   }
 
   function getModelsByMetadata(req, res, next) {
-    offset = typeof req.query.offset  !== 'undefined' ?  req.query.offset  : offset;
-    limit = typeof req.query.limit  !== 'undefined' ?  req.query.limit  : limit;
-    keyword = req.params.keyword !='*' ? req.params.keyword : keyword;
+    var offset = typeof req.query.offset  !== 'undefined' ?  req.query.offset  : 0;
+    var limit = typeof req.query.limit  !== 'undefined' ?  req.query.limit  : 99999999999999;
+    var keyword = req.params.keyword !='*' ? req.params.keyword : "";
     db.any("select model_id, data from models where lower(data::text)::jsonb->'metadata'->>'title' like lower($1) "+
     "or lower(data::text)::jsonb->'metadata'->>'abstract' like lower($1) "+ 
     "or lower(data::text)::jsonb->'metadata'->>'keywords' like lower($1)"+ 
