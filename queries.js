@@ -30,6 +30,7 @@ function getAllModels(req, res, next) {
         res.status(200)
           .json({
             status: 'success',
+            resultCount:data.length,
             data: data,
             message: 'Retrieved All Models'
           });
@@ -69,6 +70,7 @@ function getAllModels(req, res, next) {
         res.status(200)
           .json({
             status: 'success',
+            resultCount:data.length,
             data: data,
             message: 'Retrieved All Models'
           });
