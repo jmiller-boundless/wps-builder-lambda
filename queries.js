@@ -21,14 +21,13 @@ var db = pgp(cn);
 function getAllModels(req, res, next) {
   var offset = typeof req.query.offset  !== 'undefined' ?  req.query.offset  : 0;
   var limit = typeof req.query.limit  !== 'undefined' ?  req.query.limit  : 99999999999999;
-    db.any("select model_id, data from models ORDER BY to_timestamp(data->'metadata'->>'updated','YYYY-MM-DDTHH:MI:SS.MS') DESC OFFSET $1 LIMIT $2 ",
+    db.any("select model_id, data, count(*) OVER() AS full_count from models ORDER BY to_timestamp(data->'metadata'->>'updated','YYYY-MM-DDTHH:MI:SS.MS') DESC OFFSET $1 LIMIT $2 ",
     [parseInt(offset,10),parseInt(limit,10)])
       .then(function (data) {
           //console.info(data);
         res.status(200)
           .json({
             status: 'success',
-            resultCount:data.length,
             data: data,
             message: 'Retrieved All Models'
           });
@@ -58,7 +57,7 @@ function getAllModels(req, res, next) {
     var offset = typeof req.query.offset  !== 'undefined' ?  req.query.offset  : 0;
     var limit = typeof req.query.limit  !== 'undefined' ?  req.query.limit  : 99999999999999;
     var keyword = req.params.keyword !='*' ? req.params.keyword : "";
-    db.any("select model_id, data from models where lower(data::text)::jsonb->'metadata'->>'title' like lower($1) "+
+    db.any("select model_id, data, count(*) OVER() AS full_count from models where lower(data::text)::jsonb->'metadata'->>'title' like lower($1) "+
     "or lower(data::text)::jsonb->'metadata'->>'abstract' like lower($1) "+ 
     "or lower(data::text)::jsonb->'metadata'->>'keywords' like lower($1)"+ 
     "ORDER BY to_timestamp(data->'metadata'->>'updated','YYYY-MM-DDTHH:MI:SS.MS') DESC OFFSET $2 LIMIT $3",
@@ -68,7 +67,6 @@ function getAllModels(req, res, next) {
         res.status(200)
           .json({
             status: 'success',
-            resultCount:data.length,
             data: data,
             message: 'Retrieved All Models'
           });
