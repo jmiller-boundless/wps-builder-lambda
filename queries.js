@@ -17,11 +17,13 @@ const cn = {
     password: process.env.DATABASE_CONNECTION_PASSWORD
 };
 var db = pgp(cn);
+pgp.pg.types.setTypeParser(20, parseInt); //big int is parsed as int due to row count coming back as bigint
 
 function getAllModels(req, res, next) {
   var offset = typeof req.query.offset  !== 'undefined' ?  req.query.offset  : 0;
   var limit = typeof req.query.limit  !== 'undefined' ?  req.query.limit  : 99999999999999;
-    db.any("select model_id, data, count(*) OVER() AS full_count from models ORDER BY to_timestamp(data->'metadata'->>'updated','YYYY-MM-DDTHH:MI:SS.MS') DESC OFFSET $1 LIMIT $2 ",
+    db.any("select model_id, data, count(*) OVER() AS full_count from models "
+    +"ORDER BY to_timestamp(data->'metadata'->>'updated','YYYY-MM-DDTHH:MI:SS.MS') DESC OFFSET $1 LIMIT $2 ",
     [parseInt(offset,10),parseInt(limit,10)])
       .then(function (data) {
           //console.info(data);
